@@ -1,6 +1,7 @@
 service: () -> {
-    createUser: (text, text, int, text, text, text, text) -> (record {Id:principal; Age:int; Nik:text; Email:text; Password:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text});
-    readUserById: (principal) -> (opt record {Id:principal; Age:int; Nik:text; Email:text; Password:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}) query;
-    readUsers: () -> (vec record {Id:principal; Age:int; Nik:text; Email:text; Password:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}) query;
-    transfer: (principal, nat64) -> (nat64);
+    createEvent: (record {Date:nat64; Name:text; Category:text}) -> (variant {Ok:record {Id:principal; Date:nat64; Name:text; Category:text; CreatedAt:nat64}; Err:record {UNAUTHORIZE:text; NOT_FOUND:text; BAD_REQUEST:text; FORBIDDEN:text; INTERNAL_SERVER_ERROR:text}}) query;
+    createUser: (record {Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; Username:text}) -> (variant {Ok:record {Id:principal; Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}; Err:record {UNAUTHORIZE:text; NOT_FOUND:text; BAD_REQUEST:text; FORBIDDEN:text; INTERNAL_SERVER_ERROR:text}});
+    getMe: () -> (variant {Ok:opt record {Id:principal; Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}; Err:record {UNAUTHORIZE:text; NOT_FOUND:text; BAD_REQUEST:text; FORBIDDEN:text; INTERNAL_SERVER_ERROR:text}}) query;
+    readUserById: (principal) -> (opt record {Id:principal; Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}) query;
+    readUsers: () -> (vec record {Id:principal; Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}) query;
 }

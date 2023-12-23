@@ -9,7 +9,19 @@ export const User = Record({
     Email: text,
     Password: text,
     NoTelp: text,
+    Role: text,
     CreatedAt: nat64,
 });
 
-export const USER_ROLE = ['ORGANIZER', 'ADMIN'];
+export const UserPayload = Record({
+    FullName: text,
+    Nik: text,
+    Age: int,
+    Username: text,
+    Email: text,
+    Password: text,
+    NoTelp: text,
+    Role: text,
+})
+
+export const USER_ROLE = ['ORGANIZER', 'PARTICIPANT'];

@@ -1,12 +1,20 @@
-import { Principal, Record, nat64, text } from "azle";
+import { Principal, Record, Vec, nat64, text } from "azle";
 import { Bank } from "./bank";
 
 export const Event = Record({
     Id: Principal,
     Name: text,
-    date: nat64,
-    category: text,
-    account_number: text,
-    bank: Bank,
-    createdAt: nat64,
+    Date: nat64,
+    Category: text,
+    // Account_number: text,
+    CreatedAt: nat64,
 });
+
+
+// const Category = ["ROCK", "POP", "JAZ", "ORCHESTRA", "DANGDUT"]
+export const EventPayload = Record({
+    Name: text, 
+    Date: nat64,
+    Category: text,
+    // Account_number: text
+})
