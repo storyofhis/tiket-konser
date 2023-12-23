@@ -1,9 +1,13 @@
-import { Record, text } from "azle";
+import { Record, int, int16, text } from "azle";
+
+
+export const NOT_FOUND = "NOT FOUND";
+export const UNAUTHORIZE = "UNAUTHORIZED";
+export const FORBIDDEN = "FORBIDDEN";
+export const BAD_REQUEST = "BAD REQUEST";
+export const INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
 
 export const Error = Record({
-    NOT_FOUND: text,
-    UNAUTHORIZE: text,
-    FORBIDDEN: text,
-    BAD_REQUEST: text,
-    INTERNAL_SERVER_ERROR: text,
+    code: int16,
+    message: text,
 });

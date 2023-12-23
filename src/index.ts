@@ -4,7 +4,7 @@ import { User, UserPayload } from './entities/user';
 import { Event, EventPayload } from './entities/events';
 import { Orders } from './entities/orders';
 import { Confirm } from './entities/confirm';
-import { Error } from './entities/base';
+import { BAD_REQUEST, Error, FORBIDDEN } from './entities/base';
 // This is a global variable that is stored on the heap
 let message = '';
 /**
@@ -36,11 +36,8 @@ export default Canister({
             // ) 
         ) {
             const err: Error = {
-                NOT_FOUND: "",
-                UNAUTHORIZE: "",
-                FORBIDDEN: "",
-                BAD_REQUEST: "USER ALREADY EXISTS!",
-                INTERNAL_SERVER_ERROR: "",
+                code: 500,
+                message: BAD_REQUEST,
             };
             return Result.Err(err);
         }
@@ -79,29 +76,17 @@ export default Canister({
     //     accounts.insert(to, toBalance + amount);
     //     return amount;
     // })
-    getMe: query([], Result(Opt(User), Error), () => {
-        try {
-            const caller = ic.caller();
-            if (!users.containsKey(caller)) {
-                const err: Error = {
-                    NOT_FOUND: "",
-                    UNAUTHORIZE: "USER DOES NOT REGISTERED",
-                    FORBIDDEN: "",
-                    BAD_REQUEST: "",
-                    INTERNAL_SERVER_ERROR: "",
-                };
-                return Result.Err(err);
-            }
-    
-            const user = users.get(ic.caller());
+    loginUser: update([text, text], Result(User, Error), (username, password) => {
+        const user = Array.from(users.values()).find(
+            u => (u.Username === username || u.Email === username) && u.Password === password
+        );
+
+        if (user) {
             return Result.Ok(user);
-        } catch (e) {
+        } else {
             const err: Error = {
-                NOT_FOUND: "",
-                UNAUTHORIZE: "",
-                FORBIDDEN: "",
-                BAD_REQUEST: "",
-                INTERNAL_SERVER_ERROR: `${e}`,
+                code: 500,
+                message: BAD_REQUEST,
             };
             return Result.Err(err);
         }
@@ -111,34 +96,48 @@ export default Canister({
      * Create Event
      */
 
-    createEvent: query([EventPayload], Result(Event, Error), (event_payload) => {
-        const caller = ic.caller();
-        if (users.get(caller).Some?.Role !== "organizer") {
+    createEvent: query([text, text, EventPayload], Result(Event, Error), (username, password, event_payload) => {
+        const user = Array.from(users.values()).find(       // login
+            u => (u.Username === username || u.Email === username) && u.Password === password
+        );
+
+        if (user) {
+            const id = generateId();
+            const category = event_payload.Category === "0" ? "ROCK" : 
+                event_payload.Category === "1" ? "POP" : 
+                event_payload.Category === "2" ? "JAZ" : 
+                event_payload.Category === "3" ? "ORCHESTRA" : 
+                event_payload.Category === "4" ? "DANGDUT" : "NOT FOUND";
+
+            const event: Event = {
+                Id: id,
+                Name: event_payload.Name,
+                Date: ic.time(),
+                Category: category,
+                CreatedAt: ic.time(),
+            };
+
+            events.insert(event.Id, event);
+
+            const caller = ic.caller();
+            const callerUser = users.get(caller);
+            const userRole = callerUser?.Some?.Role;
+
+            if (userRole === "organizer") {
+                const err: Error = {
+                    code: 403,
+                    message: "FORBIDDEN",
+                };
+                return Result.Err(err);
+            }
+
+            return Result.Ok(event);
+        } else {
             const err: Error = {
-                NOT_FOUND: "",
-                UNAUTHORIZE: "",
-                FORBIDDEN: "ORGANIZER ONLY!",
-                BAD_REQUEST: "",
-                INTERNAL_SERVER_ERROR: "",
+                code: 401,
+                message: "UNAUTHORIZED",
             };
             return Result.Err(err);
         }
-
-        const id = generateId();
-        const category = event_payload.Category === "0" ? "ROCK" : 
-            event_payload.Category === "1" ? "POP" : 
-            event_payload.Category === "2" ? "JAZ" : 
-            event_payload.Category === "3" ? "ORCHESTRA" : 
-            event_payload.Category === "4" ? "DANGDUT" : "NOT FOUND";
-
-        const event: Event = {
-            Id: id,
-            Name: event_payload.Name,
-            Date: ic.time(),
-            Category: category,
-            CreatedAt: ic.time(),
-        };
-        events.insert(event.Id, event);
-        return Ok(event);  
-    })
+    }),
 });

@@ -14,7 +14,5 @@ export const Event = Record({
 // const Category = ["ROCK", "POP", "JAZ", "ORCHESTRA", "DANGDUT"]
 export const EventPayload = Record({
     Name: text, 
-    Date: nat64,
     Category: text,
-    // Account_number: text
 })
