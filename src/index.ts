@@ -5,6 +5,7 @@ import { Event, EventPayload } from './entities/events';
 import { Orders } from './entities/orders';
 import { Confirm } from './entities/confirm';
 import { BAD_REQUEST, Error, FORBIDDEN } from './entities/base';
+import { Tickets, TicketsPayload } from './entities/tickets';
 // This is a global variable that is stored on the heap
 let message = '';
 /**
@@ -15,11 +16,13 @@ type User = typeof User.tsType;
 type Event = typeof Event.tsType;
 type Orders = typeof Orders.tsType;
 type Confirm = typeof Confirm.tsType;
+type Tickets = typeof Tickets.tsType;
 
 type Error = typeof Error.tsType;
 
 let users = StableBTreeMap<Principal, User>(0);
 let events = StableBTreeMap<Principal, Event>(0);
+let tickets = StableBTreeMap<Principal, Tickets>(0); 
 let accounts = StableBTreeMap<Principal, nat64>(0);
 
 export default Canister({
@@ -93,10 +96,11 @@ export default Canister({
     }),
 
     /**
-     * Create Event
+     * Event
+     * input : username & password firtsly
      */
 
-    createEvent: query([text, text, EventPayload], Result(Event, Error), (username, password, event_payload) => {
+    createEvent: update([text, text, EventPayload], Result(Event, Error), (username, password, event_payload) => {
         const user = Array.from(users.values()).find(       // login
             u => (u.Username === username || u.Email === username) && u.Password === password
         );
@@ -109,8 +113,16 @@ export default Canister({
                 event_payload.Category === "3" ? "ORCHESTRA" : 
                 event_payload.Category === "4" ? "DANGDUT" : "NOT FOUND";
 
+            const caller = ic.caller();
+            const callerUser = users.get(caller);
+            const userRole = callerUser?.Some?.Role;
+            const userId = callerUser?.Some?.Id;
+            // console.log("User ID : ", user.Id);
+            console.log("User ID : ", user.Id.toString().replace(/"/g, ''));
+
             const event: Event = {
                 Id: id,
+                UserId: id,     // [ERROR]: this id is not correct should from user_id
                 Name: event_payload.Name,
                 Date: ic.time(),
                 Category: category,
@@ -118,10 +130,6 @@ export default Canister({
             };
 
             events.insert(event.Id, event);
-
-            const caller = ic.caller();
-            const callerUser = users.get(caller);
-            const userRole = callerUser?.Some?.Role;
 
             if (userRole === "organizer") {
                 const err: Error = {
@@ -132,6 +140,52 @@ export default Canister({
             }
 
             return Result.Ok(event);
+        } else {
+            const err: Error = {
+                code: 401,
+                message: "UNAUTHORIZED",
+            };
+            return Result.Err(err);
+        }
+    }),
+    
+    getEvents: query([text, text], Result(Vec(Event), Error), (username, password) => {
+        const user = Array.from(users.values()).find(      
+            u => (u.Username === username || u.Email === password) && u.Password === password
+        );
+        if (user) {
+            // const eventsForUser = Array.from(events.values()).filter(e => e.UserId === user.Id);
+            console.log("Events : ", events.values());
+            return Result.Ok(events.values());
+        } else {
+            const err: Error = {
+                code: 500,
+                message: BAD_REQUEST,
+            };
+            return Result.Err(err);
+        }
+    }),
+
+    /**
+     * Ticket
+     * input : username & password firtsly
+     */
+    createTicket: update([text, text, TicketsPayload], Result(Tickets, Error), (username, password, tickets_payload) => {
+        const user = Array.from(users.values()).find(       // login
+            u => (u.Username === username || u.Email === username) && u.Password === password
+        );
+
+        if (user) {
+            const id = generateId();
+            const caller = ic.caller();
+            const callerUser = users.get;
+            
+            const tickets: Tickets = {
+                Id: id,
+                Price: tickets_payload.Price,
+                EventId: id,
+                CreateAt: ic.time(),
+            }
         } else {
             const err: Error = {
                 code: 401,

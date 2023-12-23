@@ -3,6 +3,7 @@ import { Bank } from "./bank";
 
 export const Event = Record({
     Id: Principal,
+    UserId: Principal,  // create the user_id
     Name: text,
     Date: nat64,
     Category: text,
