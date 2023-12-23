@@ -1,0 +1,6 @@
+service: () -> {
+    createUser: (text, text, int, text, text, text, text) -> (record {Id:principal; Age:int; Nik:text; Email:text; Password:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text});
+    readUserById: (principal) -> (opt record {Id:principal; Age:int; Nik:text; Email:text; Password:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}) query;
+    readUsers: () -> (vec record {Id:principal; Age:int; Nik:text; Email:text; Password:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}) query;
+    transfer: (principal, nat64) -> (nat64);
+}
