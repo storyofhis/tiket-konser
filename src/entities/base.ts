@@ -7,7 +7,7 @@ export const FORBIDDEN = "FORBIDDEN";
 export const BAD_REQUEST = "BAD REQUEST";
 export const INTERNAL_SERVER_ERROR = "INTERNAL SERVER ERROR";
 
-export const Error = Record({
+export const ERROR = Record({
     code: int16,
     message: text,
 });
