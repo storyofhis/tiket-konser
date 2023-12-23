@@ -1,5 +1,6 @@
 service: () -> {
     createEvent: (text, text, record {Name:text; Category:text}) -> (variant {Ok:record {Id:principal; Date:nat64; Name:text; UserId:principal; Category:text; CreatedAt:nat64}; Err:record {code:int16; message:text}});
+    createTicket: (text, text, record {Price:nat64}) -> (variant {Ok:record {Id:principal; CreateAt:nat64; Price:nat64; EventId:principal}; Err:record {code:int16; message:text}});
     createUser: (record {Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; Username:text}) -> (variant {Ok:record {Id:principal; Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}; Err:record {code:int16; message:text}});
     getEvents: (text, text) -> (variant {Ok:vec record {Id:principal; Date:nat64; Name:text; UserId:principal; Category:text; CreatedAt:nat64}; Err:record {code:int16; message:text}}) query;
     loginUser: (text, text) -> (variant {Ok:record {Id:principal; Age:int; Nik:text; Email:text; Password:text; Role:text; FullName:text; NoTelp:text; CreatedAt:nat64; Username:text}; Err:record {code:int16; message:text}});

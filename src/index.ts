@@ -171,21 +171,24 @@ export default Canister({
      * input : username & password firtsly
      */
     createTicket: update([text, text, TicketsPayload], Result(Tickets, Error), (username, password, tickets_payload) => {
-        const user = Array.from(users.values()).find(       // login
+        const user = Array.from(users.values()).find(
             u => (u.Username === username || u.Email === username) && u.Password === password
         );
-
+    
         if (user) {
             const id = generateId();
             const caller = ic.caller();
-            const callerUser = users.get;
             
-            const tickets: Tickets = {
+            const ticket: Tickets = {
                 Id: id,
                 Price: tickets_payload.Price,
-                EventId: id,
+                EventId: id, // Update this based on your system logic to associate tickets with an event
                 CreateAt: ic.time(),
-            }
+            };
+    
+            // Save tickets or perform relevant operations here
+            tickets.insert(ticket.Id, ticket);
+            return Result.Ok(ticket);
         } else {
             const err: Error = {
                 code: 401,
@@ -193,5 +196,6 @@ export default Canister({
             };
             return Result.Err(err);
         }
-    }),
+    })
+    
 });
